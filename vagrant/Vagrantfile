@@ -1,6 +1,7 @@
 # -- mode: ruby --
 # vi: set ft=ruby :
 BOX_IMAGE = "ubuntu/focal64"
+BOX_DESKTOP = "gusztavvargadr/ubuntu-desktop"
 DOMAIN = "aula104.local"
 DNSIP = "192.168.33.10"
 LAB = "bind9"
@@ -15,12 +16,6 @@ $nginx_provision = <<-SHELL
   sudo apt -y install nginx
   SHELL
 
-$gnome_provision = <<-SHELL
-  sudo apt-get update
-  sudo apt-get -y install gnome-shell ubuntu-gnnome-desktop
-  sudo reboot
-  SHELL
-
 $dnsclient = <<-SHELL
   echo -e "nameserver $1\ndomain aula104.local">/etc/resolv.conf
 SHELL
@@ -29,7 +24,6 @@ services ={
   "nginx"=>{:ip=>"192.168.33.11", :provision=>$nginx_provision},
   "apache1"=>{:ip=>"192.168.33.12", :provision=>$apache_provision},
   "apache2"=>{:ip=>"192.168.33.13", :provision=>$apache_provision},
-  "gnome"=>{:ip=>"192.168.33.14", :provision=>$gnome_provision},
 }
 
 Vagrant.configure("2") do |config|
@@ -69,6 +63,13 @@ Vagrant.configure("2") do |config|
     config.vm.define "client#{id}" do |guest|
       guest.vm.provider "virtualbox" do |vb, subconfig|
         vb.name = "client#{id}"
+        if id>1
+          vb.gui = true
+          vb.cpus = 2
+          vb.memory = 2048
+          subconfig.vm.box = BOX_DESKTOP
+          subconfig.vbguest.auto_update = true
+        end
         subconfig.vm.hostname = "client#{id}.#{DOMAIN}"
 
         subconfig.vm.network :private_network, ip: "192.168.33.#{150+id}",  virtualboxintnet: LAB

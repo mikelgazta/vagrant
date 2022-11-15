@@ -28,7 +28,7 @@ zone "33.168.192.in-addr.arpa" {
 EOF
 
 cat <<EOF >/var/lib/bind/ZONA.COM
-$TTL 3600
+\$TTL 3600
 ZONA.COM.     IN      SOA     ns.ZONA.COM. santi.ZONA.COM. (
                 3            ; serial
                 7200         ; refresh after 2 hours
@@ -41,23 +41,26 @@ ns.ZONA.COM.       IN      A       $DNSIP
 nginx IN  A   192.168.33.11
 apache1 IN  A 192.168.33.12
 apache2 IN  A   192.168.33.13
+gnome   IN  A   192.168.33.14
 ; aqui pones los hosts
 EOF
 
 cat <<EOF >/var/lib/bind/33.168.192.rev
-$ttl 3600
+\$ttl 3600
 33.168.192.in-addr.arpa.  IN      SOA     ns.ZONA.COM. santi.ZONA.COM. (
                 3            ; serial
                 7200         ; refresh after 2 hours
                 3600         ; retry after 1 hour
                 604800       ; expire after 1 week
                 86400 )      ; minimum TTL of 1 day
+
+@   IN      NS      ns.ZONA.COM.
 10  IN      NS      ns.ZONA.COM.
 11  IN      PTR      nginx
 12  IN  PTR     apache1
 13  IN  PTR     apache2
+14  IN  PTR     gnome
 ; aqui pones los hosts inversos
-
 EOF
 
 cp /etc/resolv.conf{,.bak}
